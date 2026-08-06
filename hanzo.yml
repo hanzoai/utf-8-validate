@@ -1,0 +1,19 @@
+# Canonical CI/CD config for hanzoai/utf-8-validate — read by the hanzoai/ci
+# reusable workflow (.hanzo/workflows/cicd.yml) and by platform.hanzo.ai.
+#
+# LIBRARY: UTF-8 validation for WebSocket frames — a C++ N-API addon with a
+# pure-JS fallback. No image, no deploy — it ships from a tag.
+#
+# `npm install` compiles the addon (the package's own `install` script is
+# node-gyp-build), so a build break in src/ fails here rather than at somebody
+# else's install time. Then mocha runs test/, which feeds the addon and the
+# fallback the same corpus of valid and deliberately malformed sequences —
+# overlong encodings, lone surrogates, truncated continuation bytes — and
+# requires them to agree.
+#
+# That agreement is the entire product. This is what a WebSocket server calls
+# to decide whether to accept a frame, so "returns true too often" is a
+# protocol hole, and it is invisible to anything but a test.
+test:
+  - name: build-and-test
+    run: npm install && npm test
